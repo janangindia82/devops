@@ -1,15 +1,10 @@
 pipeline {
     agent any
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/janangindia82/devops.git'
-            }
-        }
         stage('Build') {
             steps {
                 script {
-                    def app = docker.build("project:${env.BUILD_ID}")
+                    def app = docker.build("my-node-app:${env.BUILD_ID}")
                 }
             }
         }
@@ -31,8 +26,8 @@ pipeline {
         }
         stage('Deploy MySQL') {
             steps {
-                sh 'kubectl apply -f k8s/mysql/deployment.yaml'
-                sh 'kubectl apply -f k8s/mysql/service.yaml'
+                sh 'kubectl apply -f k8s/mysql/mysql-deployment.yaml'
+                sh 'kubectl apply -f k8s/mysql/mysql-service.yaml'
             }
         }
     }
