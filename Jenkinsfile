@@ -1,34 +1,34 @@
 pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                script {
-                    def app = docker.build("my-node-app:${env.BUILD_ID}")
-                }
+    agent any 
+    environment {
+    DOCKERHUB_CREDENTIALS = credentials('jenkins_login')
+    }
+    stages { 
+        stage('SCM Checkout') {
+            steps{
+            git 'https://github.com/janangindia82/devops.git'
             }
         }
-        stage('Push') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        app.push("${env.BUILD_ID}")
-                        app.push("latest")
-                    }
-                }
+
+        stage('Build docker image') {
+            steps {  
+                sh 'docker build -t janangindia82/nodeapp:$BUILD_NUMBER .'
             }
         }
-        stage('Deploy Node.js') {
-            steps {
-                sh 'kubectl apply -f k8s/nodejs-deployment.yaml'
-                sh 'kubectl apply -f k8s/nodejs-service.yaml'
+        stage('login to dockerhub') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-        stage('Deploy MySQL') {
-            steps {
-                sh 'kubectl apply -f k8s/mysql/mysql-deployment.yaml'
-                sh 'kubectl apply -f k8s/mysql/mysql-service.yaml'
+        stage('push image') {
+            steps{
+                sh 'docker push janangindia82/nodeapp:$BUILD_NUMBER'
             }
+        }
+}
+post {
+        always {
+            sh 'docker logout'
         }
     }
 }
