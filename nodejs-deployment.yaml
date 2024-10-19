@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: my-node-app
-        image: docker pull janangindia82/nodeapp:8
+        image: janangindia82/nodeapp:8
         ports:
         - containerPort: 8787
