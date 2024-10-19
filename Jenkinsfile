@@ -25,6 +25,18 @@ pipeline {
                 sh 'docker push janangindia82/nodeapp:$BUILD_NUMBER'
             }
         }
+        stage('Deploy Node.js') {
+            steps {
+                sh 'kubectl apply -f nodejs-deployment.yaml'
+                sh 'kubectl apply -f nodejs-service.yaml'
+            }
+        }
+        stage('Deploy MYSQL') {
+            steps {
+                sh 'kubectl apply -f mysql-deployment.yaml'
+                sh 'kubectl apply -f mysql-service.yaml'
+            }
+        }
 }
 post {
         always {
