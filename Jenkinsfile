@@ -12,7 +12,7 @@ pipeline {
 
         stage('Build docker image') {
             steps {  
-                sh 'docker build -t janangindia82/nodeapp:$BUILD_NUMBER .'
+                sh 'docker build -t janangindia82/nodeapp:$BUILD_NUMBER -f Dockerfile .'
             }
         }
         stage('login to dockerhub') {
@@ -23,6 +23,18 @@ pipeline {
         stage('push image') {
             steps{
                 sh 'docker push janangindia82/nodeapp:$BUILD_NUMBER'
+            }
+        }
+        stage('Deploy Node.js') {
+            steps {
+                sh 'kubectl apply -f nodejs-deployment.yaml'
+                sh 'kubectl apply -f nodejs-service.yaml'
+            }
+        }
+        stage('Deploy MYSQL') {
+            steps {
+                sh 'kubectl apply -f mysql-deployment.yaml'
+                sh 'kubectl apply -f mysql-service.yaml'
             }
         }
 }
